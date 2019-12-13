@@ -262,7 +262,7 @@
             if (item) {
               // only push when the result is not null
               // null could mean #if clauses where nothing matched => In this case instead of rendering 'null', should just skip it completely
-              // Todo : Distinguish between #if arrays and ordinary arrays, and return null for ordinary arrays
+              // @todo : Distinguish between #if arrays and ordinary arrays, and return null for ordinary arrays
               result.push(item);
             }
           }
@@ -297,7 +297,7 @@
               if (fun.name === '#include') {
                 // this was handled above (before the for loop) so just ignore
               } else if (fun.name === '#let') {
-                if (Helper.is_array(template[key]) && template[key].length == 2) {
+                if (Helper.is_array(template[key]) && template[key].length === 2) {
                   var defs = template[key][0];
                   var real_template = template[key][1];
 
@@ -305,7 +305,7 @@
                   var parsed_keys = TRANSFORM.run(defs, data);
 
                   // 2. modify the data
-                  for(var parsed_key in parsed_keys) {
+                  for (var parsed_key in parsed_keys) {
                     TRANSFORM.memory[parsed_key] = parsed_keys[parsed_key];
                     data[parsed_key] = parsed_keys[parsed_key];
                   }
@@ -342,8 +342,8 @@
                   // necessary because #merge merges multiple objects into one,
                   // and one of them may be 'this', in which case the $index attribute
                   // will have snuck into the final result
-                  if(typeof data === 'object') {
-                    delete result["$index"];
+                  if (typeof data === 'object') {
+                    delete result.$index;
 
                     // #let handling
                     for (var declared_vars in TRANSFORM.memory) {
@@ -357,7 +357,7 @@
                     delete Boolean.prototype.$index;
 
                     // #let handling
-                    for (var declared_vars in TRANSFORM.memory) {
+                    for (declared_vars in TRANSFORM.memory) {
                       delete String.prototype[declared_vars];
                       delete Number.prototype[declared_vars];
                       delete Function.prototype[declared_vars];
@@ -375,10 +375,10 @@
                   result = [];
                   for (var index = 0; index < newData.length; index++) {
                     // temporarily set $index
-                    if(typeof newData[index] === 'object') {
-                      newData[index]["$index"] = index;
+                    if (typeof newData[index] === 'object') {
+                      newData[index].$index = index;
                       // #let handling
-                      for (var declared_vars in TRANSFORM.memory) {
+                      for (declared_vars in TRANSFORM.memory) {
                         newData[index][declared_vars] = TRANSFORM.memory[declared_vars];
                       }
                     } else {
@@ -388,7 +388,7 @@
                       Array.prototype.$index = index;
                       Boolean.prototype.$index = index;
                       // #let handling
-                      for (var declared_vars in TRANSFORM.memory) {
+                      for (declared_vars in TRANSFORM.memory) {
                         String.prototype[declared_vars] = TRANSFORM.memory[declared_vars];
                         Number.prototype[declared_vars] = TRANSFORM.memory[declared_vars];
                         Function.prototype[declared_vars] = TRANSFORM.memory[declared_vars];
@@ -401,10 +401,10 @@
                     var loop_item = TRANSFORM.run(template[key], newData[index]);
 
                     // clean up $index
-                    if(typeof newData[index] === 'object') {
-                      delete newData[index]["$index"];
+                    if (typeof newData[index] === 'object') {
+                      delete newData[index].$index;
                       // #let handling
-                      for (var declared_vars in TRANSFORM.memory) {
+                      for (declared_vars in TRANSFORM.memory) {
                         delete newData[index][declared_vars];
                       }
                     } else {
@@ -414,7 +414,7 @@
                       delete Array.prototype.$index;
                       delete Boolean.prototype.$index;
                       // #let handling
-                      for (var declared_vars in TRANSFORM.memory) {
+                      for (declared_vars in TRANSFORM.memory) {
                         delete String.prototype[declared_vars];
                         delete Number.prototype[declared_vars];
                         delete Function.prototype[declared_vars];
@@ -469,13 +469,13 @@
                   result[key] = filled;
                 }
               } else {
-                var item = TRANSFORM.run(template[key], data);
+                item = TRANSFORM.run(template[key], data);
                 if (item !== undefined) {
                   result[key] = item;
                 }
               }
             } else {
-              var item = TRANSFORM.run(template[key], data);
+              item = TRANSFORM.run(template[key], data);
               if (item !== undefined) {
                 result[key] = item;
               }
@@ -560,7 +560,7 @@
             func = Function('with(this) {return (' + slot + ')}').bind(data);
           }
           var evaluated = func();
-          delete data.$root;  // remove $root now that the parsing is over
+          delete data.$root; // remove $root now that the parsing is over
           if (evaluated) {
             // In case of primitive types such as String, need to call valueOf() to get the actual value instead of the promoted object
             evaluated = evaluated.valueOf();
@@ -751,7 +751,7 @@
       if (SELECT.$selected && SELECT.$selected.length > 0) {
         SELECT.$selected.sort(function(a, b) {
           // sort by path length, so that deeper level items will be replaced first
-          // TODO: may need to look into edge cases
+          // @todo may need to look into edge cases
           return b.path.length - a.path.length;
         }).forEach(function(selection) {
         //SELECT.$selected.forEach(function(selection) {
@@ -810,7 +810,7 @@
       if (SELECT.$selected && SELECT.$selected.length > 0) {
         SELECT.$selected.sort(function(a, b) {
           // sort by path length, so that deeper level items will be replaced first
-          // TODO: may need to look into edge cases
+          // @todo may need to look into edge cases
           return b.path.length - a.path.length;
         }).forEach(function(selection) {
           // parse selected
@@ -923,7 +923,6 @@
   if (typeof exports !== 'undefined') {
     var x = {
       TRANSFORM: TRANSFORM,
-      transform: TRANSFORM,
       SELECT: SELECT,
       Conditional: Conditional,
       Helper: Helper,

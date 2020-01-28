@@ -22,7 +22,10 @@
       // 4. Returns the object;
       if (path && path.length > 0) {
         var func = Function('new_val', 'with(this) {this' + path + '=new_val; return this;}').bind(o);
-        return func(new_val);
+        JSON.stringify = customStringify;
+        var r = func(new_val);
+        JSON.stringify = nativeStringify;
+        return r;
       } else {
         o = new_val;
         return o;
@@ -559,7 +562,9 @@
             // Ordinary simple expression that
             func = Function('with(this) {return (' + slot + ')}').bind(data);
           }
+          JSON.stringify = customStringify;
           var evaluated = func();
+          JSON.stringify = nativeStringify;
           delete data.$root; // remove $root now that the parsing is over
           if (evaluated) {
             // In case of primitive types such as String, need to call valueOf() to get the actual value instead of the promoted object
@@ -893,14 +898,14 @@
   };
 
   // Native JSON object override
-  var _stringify = JSON.stringify;
-  JSON.stringify = function(val, replacer, spaces) {
+  var nativeStringify = JSON.stringify;
+  var customStringify = function(val, replacer, spaces) {
     var t = typeof val;
     if (['number', 'string', 'boolean'].indexOf(t) !== -1) {
-      return _stringify(val, replacer, spaces);
+      return nativeStringify(val, replacer, spaces);
     }
     if (!replacer) {
-      return _stringify(val, function(key, val) {
+      return nativeStringify(val, function(key, val) {
         if (SELECT.$injected && SELECT.$injected.length > 0 && SELECT.$injected.indexOf(key) !== -1) { return undefined; }
         if (key === '$root' || key === '$index') {
           return undefined;
@@ -915,7 +920,7 @@
         }
       }, spaces);
     } else {
-      return _stringify(val, replacer, spaces);
+      return nativeStringify(val, replacer, spaces);
     }
   };
 

@@ -1,6 +1,6 @@
 {
   "name": "flowed-st",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JSON Template over JSON",
   "main": "st.js",
   "directories": {
@@ -15,6 +15,7 @@
   },
   "scripts": {
     "test": "mocha --recursive test/unit/",
+    "posttest": "npm run lint",
     "lint": "eslint st.js"
   },
   "repository": {

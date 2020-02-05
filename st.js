@@ -22,9 +22,7 @@
       // 4. Returns the object;
       if (path && path.length > 0) {
         var func = Function('new_val', 'with(this) {this' + path + '=new_val; return this;}').bind(o);
-        JSON.stringify = customStringify;
         var r = func(new_val);
-        JSON.stringify = nativeStringify;
         return r;
       } else {
         o = new_val;
@@ -178,7 +176,7 @@
     memory: {},
     transform: function(template, data, injection, serialized) {
       var selector = null;
-      if (/#include/.test(JSON.stringify(template))) {
+      if (/#include/.test(customStringify(template))) {
         selector = function(key, value) { return /#include/.test(key) || /#include/.test(value); };
       }
       var res;
@@ -201,7 +199,7 @@
       }
       if (serialized) {
         // needs to return stringified version
-        return JSON.stringify(res);
+        return customStringify(res);
       } else {
         return res;
       }
@@ -324,7 +322,7 @@
                     result = result.concat(res);
                   });
 
-                  if (/\{\{(.*?)\}\}/.test(JSON.stringify(result))) {
+                  if (/\{\{(.*?)\}\}/.test(customStringify(result))) {
                     // concat should only trigger if all of its children
                     // have successfully parsed.
                     // so check for any template expression in the end result
@@ -550,21 +548,22 @@
           if (['number', 'string', 'array', 'boolean', 'function'].indexOf(data_type === -1)) {
             data.$root = root;
           }
+          var replaceStringify = function(code) {
+            return code.replace(/JSON.stringify\(/g, 'JSON.stringify2(');
+          };
           // If the pattern ends with a return statement, but is NOT wrapped inside another function ([^}]*$), it's a function expression
           var match = /function\([ ]*\)[ ]*\{(.*)\}[ ]*$/g.exec(slot);
           if (match) {
-            func = Function('with(this) {' + match[1] + '}').bind(data);
+            func = Function('with(this) {' + replaceStringify(match[1]) + '}').bind(data);
           } else if (/\breturn [^;]+;?[ ]*$/.test(slot) && /return[^}]*$/.test(slot)) {
             // Function expression with explicit 'return' expression
-            func = Function('with(this) {' + slot + '}').bind(data);
+            func = Function('with(this) {' + replaceStringify(slot) + '}').bind(data);
           } else {
             // Function expression with explicit 'return' expression
             // Ordinary simple expression that
-            func = Function('with(this) {return (' + slot + ')}').bind(data);
+            func = Function('with(this) {return (' + replaceStringify(slot) + ')}').bind(data);
           }
-          JSON.stringify = customStringify;
           var evaluated = func();
-          JSON.stringify = nativeStringify;
           delete data.$root; // remove $root now that the parsing is over
           if (evaluated) {
             // In case of primitive types such as String, need to call valueOf() to get the actual value instead of the promoted object
@@ -923,6 +922,7 @@
       return nativeStringify(val, replacer, spaces);
     }
   };
+  JSON.stringify2 = customStringify;
 
   // Export
   if (typeof exports !== 'undefined') {

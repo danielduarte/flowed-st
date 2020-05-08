@@ -1,9 +1,10 @@
 (function() {
   var $context = this;
   var root; // root context
+
   var Helper = {
     is_template: function(str) {
-      var re = /\{\{(.+)\}\}/g;
+      var re = /{{(.+)}}/g;
       return re.test(str);
     },
     is_array: function(item) {
@@ -30,10 +31,11 @@
       }
     },
   };
+
   var Conditional = {
     run: function(template, data) {
       // expecting template as an array of objects,
-      // each of which contains '#if', '#elseif', 'else' as key
+      // each of which contains '#if', '#elseif', '#else' as key
 
       // item should be in the format of:
       // {'#if item': 'blahblah'}
@@ -172,6 +174,7 @@
       return true;
     },
   };
+
   var TRANSFORM = {
     memory: {},
     transform: function(template, data, injection, serialized) {
@@ -494,7 +497,7 @@
       var replaced = template;
       // Run fillout() only if it's a template. Otherwise just return the original string
       if (Helper.is_template(template)) {
-        var re = /\{\{(.*?)\}\}/g;
+        var re = /{{(.*?)}}/g;
 
         // variables are all instances of {{ }} in the current expression
         // for example '{{this.item}} is {{this.user}}'s' has two variables: ['this.item', 'this.user']
@@ -531,8 +534,8 @@
     },
     _fillout: function(options) {
       // Given a template and fill it out with passed slot and its corresponding data
-      var re = /\{\{(.*?)\}\}/g;
-      var full_re = /^\{\{((?!\}\}).)*\}\}$/;
+      var re = /{{(.*?)}}/g;
+      var full_re = /^{{((?!}}).)*}}$/;
       var variable = options.variable;
       var data = options.data;
       var template = options.template;
@@ -552,7 +555,7 @@
             return code.replace(/JSON.stringify\(/g, 'JSON.stringify2(');
           };
           // If the pattern ends with a return statement, but is NOT wrapped inside another function ([^}]*$), it's a function expression
-          var match = /function\([ ]*\)[ ]*\{(.*)\}[ ]*$/g.exec(slot);
+          var match = /function\([ ]*\)[ ]*{(.*)}[ ]*$/g.exec(slot);
           if (match) {
             func = Function('with(this) {' + replaceStringify(match[1]) + '}').bind(data);
           } else if (/\breturn [^;]+;?[ ]*$/.test(slot) && /return[^}]*$/.test(slot)) {
@@ -623,6 +626,7 @@
       }
     },
   };
+
   var SELECT = {
     // current: currently accessed object
     // path: the path leading to this item

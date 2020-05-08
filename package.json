@@ -1,17 +1,17 @@
 {
   "name": "flowed-st",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "JSON Template over JSON",
   "main": "st.js",
   "directories": {
     "test": "test"
   },
   "devDependencies": {
-    "eslint": "^6.7.2",
+    "eslint": "^6.8.0",
     "he": "^1.2.0",
     "json-stable-stringify": "^1.0.1",
-    "mocha": "^6.2.2",
-    "underscore": "^1.9.1"
+    "mocha": "^7.1.2",
+    "underscore": "^1.10.2"
   },
   "scripts": {
     "test": "mocha --recursive test/unit/",
@@ -20,12 +20,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SelectTransform/st.js.git"
+    "url": "git+https://github.com/danielduarte/flowed-st"
   },
   "author": "gliechtenstein",
+  "contributors": [
+    {
+      "name": "Daniel Duarte",
+      "email": "danieldd.ar@gmail.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/SelectTransform/st.js/issues"
+    "url": "https://github.com/danielduarte/flowed-st/issues"
   },
-  "homepage": "https://github.com/SelectTransform/st.js#readme"
+  "homepage": "https://github.com/danielduarte/flowed-st#readme"
 }

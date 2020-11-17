@@ -1,9 +1,10 @@
-# ST
+# Flowed ST
 
 JSON Selector + Transformer
 
-- Website: [https://selecttransform.github.io/site](https://selecttransform.github.io/site)
-- Twitter: [@selecttransform](https://www.twitter.com/selecttransform)
+Based on ST: [https://selecttransform.github.io/site](https://selecttransform.github.io/site)
+
+See [differences compared to the original](#differences-compared-to-the-original)
 
 ---
 
@@ -200,3 +201,11 @@ const parsed = ST.select({ "items": [1,2,3,4] })
 ```
 
 ### Learn more at [selecttransform.github.io/site](https://selecttransform.github.io/site)
+
+
+## Differences compared to the original
+
+- `#concat` does not return the template when one of their children did not run the transformation. This makes possible to transform values that originally has constructions of the form `{{seems like a template}}` as original values, not as templates.
+- Global function `JSON.stringify` is not overridden so the rest of the projects using this package does not deal with unexpected side effects.
+- Updated dev dependencies to fix some vulnerabilities and get latest features and fixes.
+- ESLint issues fixed.

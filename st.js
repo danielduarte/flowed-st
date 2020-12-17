@@ -263,12 +263,8 @@
           result = [];
           for (var i = 0; i < template.length; i++) {
             var item = TRANSFORM.run(template[i], data);
-            if (item) {
-              // only push when the result is not null
-              // null could mean #if clauses where nothing matched => In this case instead of rendering 'null', should just skip it completely
-              // @todo : Distinguish between #if arrays and ordinary arrays, and return null for ordinary arrays
-              result.push(item);
-            }
+            // @todo : Distinguish between #if arrays and ordinary arrays, and not push #if arrays evaluating to false
+            result.push(item);
           }
         }
       } else if (Object.prototype.toString.call(template) === '[object Object]') {

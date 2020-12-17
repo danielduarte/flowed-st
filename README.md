@@ -206,6 +206,9 @@ const parsed = ST.select({ "items": [1,2,3,4] })
 ## Differences compared to the original
 
 - `#concat` does not return the template when one of their children did not run the transformation. This makes possible to transform values that originally has constructions of the form `{{seems like a template}}` as original values, not as templates.
+- Templates with array items that evaluates to falsy values (`false`, `0`, `""`, `null`, `undefined` or `NaN`) are not removed from the result. For example: Having the data `{ a: "", b: "non empty", c: 0, d: 123 }` and the template `["{{a}}", "{{b}}", "{{c}}", "{{d}}"]`,
+  - The original version evaluated to: `["non empty", 123]`,
+  - Whereas the new version evaluates to: `["", "non empty", 0, 123]`, preserving the array size and element indices.
 - Global function `JSON.stringify` is not overridden so the rest of the projects using this package does not deal with unexpected side effects.
 - Updated dev dependencies to fix some vulnerabilities and get latest features and fixes.
 - ESLint issues fixed.

@@ -13,6 +13,7 @@ describe("TRANSFORM.run", function() {
       var actual = st.TRANSFORM.run(template,data);
       compare(actual, "foo");
     });
+
     it("parses empty string correctly", function(){
       var data = {
         "text": ""
@@ -22,7 +23,8 @@ describe("TRANSFORM.run", function() {
       }
       var actual = st.TRANSFORM.transform(template, data);
       compare(actual, template);
-    })
+    });
+
     it("works when a template expression is used for both key and value", function(){
       var data = {
         "key": "this is key",
@@ -33,13 +35,15 @@ describe("TRANSFORM.run", function() {
       }
       var actual = st.TRANSFORM.transform(template, data);
       compare(actual, {"this is key": "this is value"});
-    })
+    });
+
     it('should correctly parse regular expression', function(){
       var template = "{{price.amount.toFixed(2).replace(/(\\d)(?=(\\d{3})+\\.)/g, '$1,')}}";
       var data = {"price": {"amount": 1000000}};
       var actual = st.TRANSFORM.run(template,data);
       compare(actual, "1,000,000.00");
     });
+
     describe("template is static json", function() {
       it("boolean value should be preserved", function() {
         var data = {
@@ -51,6 +55,7 @@ describe("TRANSFORM.run", function() {
         var actual = st.TRANSFORM.transform(template, data);
         compare(actual, {bool: true});
       });
+
       it("static json should stay exactly the same", function() {
         var data = {
           $jason: {
@@ -85,6 +90,7 @@ describe("TRANSFORM.run", function() {
         var actual = st.TRANSFORM.transform(template, data);
         compare(actual, template);
       });
+
       it("null value should be preserved", function() {
         var data = {
           "what": "ever"
@@ -95,9 +101,10 @@ describe("TRANSFORM.run", function() {
         var actual = st.TRANSFORM.transform(template, data);
         compare(actual, {bool: null});
       });
-    })
+    });
   });
 });
+
 describe('TRANSFORM.fillout', function() {
   describe("string interpolation should work", function(){
     it('should correctly parse when a template is used along with static string', function(){
@@ -108,6 +115,7 @@ describe('TRANSFORM.fillout', function() {
       compare(actual, "This is tom");
     });
   });
+
   describe("handling multiple templates in a string", function(){
     it('should correctly parse multiple templates in a string', function(){
       var actual = st.TRANSFORM.fillout(
@@ -116,6 +124,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual, "This is an tom and jane");
     });
+
     it('should correctly parse multiple templates in a string', function(){
       var template = "{{$jason.title}} and {{$jason.description}}";
       var data = {"$jason": {"title": "This is a title", "description": "This is a description"}};
@@ -124,11 +133,12 @@ describe('TRANSFORM.fillout', function() {
       compare(actual, expected);
     });
   });
+
   describe("Handling null/undefined cases", function(){
     // Handling Exception cases
     // When the parsed result is null, it could be an error.
     // But also it could be that the current run is not meant to parse the template
-    // and may need to be parsed by another dataset, so we should keep the 
+    // and may need to be parsed by another dataset, so we should keep the
     // template as is
     it('should not parse broken template', function(){
       var template = {
@@ -140,6 +150,7 @@ describe('TRANSFORM.fillout', function() {
       var actual = st.TRANSFORM.fillout(data, template);
       compare(actual, template);
     });
+
     it('should return the template string when the result is null', function(){
       var actual1 = st.TRANSFORM.fillout(
         {"users": ["tom", "jane", "obafe"]},
@@ -153,34 +164,40 @@ describe('TRANSFORM.fillout', function() {
       compare(actual2, "This is an {{items[0]}}");
     });
   });
+
   describe("Handling objects and array results", function(){
     it('should return an actual array if the result is an array', function(){
       var actual = st.TRANSFORM.fillout( {"a": ['item1','item2']}, "{{a}}");
       compare(actual, ['item1', 'item2']);
     });
+
     it('standalone this where this is object', function(){
       var actual = st.TRANSFORM.fillout( {"a": {"key": 'item1'}}, "{{a}}");
       compare(actual, {"key": "item1"});
     });
   });
+
   describe("handling map", function(){
     it('correctly runs map function', function(){
       var data = {"items": {"0": {name: "kate", age: "23"}, "1": {name: "Lassie", age: "3"}}};
       var actual = st.TRANSFORM.fillout(data, "{{Object.keys(items).map(function(key){return items[key].name;})}}");
       compare(actual, ["kate", "Lassie"]);
     });
+
     it('correctly parses a map loop: *this* edition', function(){
       var data =  ["1", "2", "3"];
       var template = "{{this.map(function(item){ return {db: item}; }) }}";
       var actual = st.TRANSFORM.fillout(data, template);
       compare(actual, [{"db": "1"}, {"db": "2"}, {"db": "3"}]);
     });
+
     it('correctly parses a map loop: $jason edition', function(){
       var data =  {"$jason": ["1", "2", "3"]};
       var template = "{{$jason.map(function(item){return {db: item};})}}";
       var actual = st.TRANSFORM.fillout(data, template);
       compare(actual, [{"db": "1"}, {"db": "2"}, {"db": "3"}]);
     });
+
     it('correctly parses a local variable inside of a map loop', function(){
       var data =  {"$params": {"title": "title", "url": "url"}, "$jason": ["1", "2", "3"]};
       var template = "{{$jason.map(function(item){return {db: item, title: $params.title, url: $params.url};})}}";
@@ -188,19 +205,23 @@ describe('TRANSFORM.fillout', function() {
       compare(actual, [{"db": "1", "title": "title", "url": "url"}, {"db": "2", "title": "title", "url": "url"}, {"db": "3", "title": "title", "url": "url"}]);
     });
   });
+
   describe("Handling 'this'", function(){
     it('standalone this where this is array', function(){
       var actual = st.TRANSFORM.fillout( ['item1','item2'], "This is an {{this}}");
       compare(actual, "This is an item1,item2");
     });
+
     it('standalone this where this is string', function(){
       var actual = st.TRANSFORM.fillout( "item1", "This is an {{this}}");
       compare(actual, "This is an item1");
     });
+
     it('standalone this where this is object', function(){
       var actual = st.TRANSFORM.fillout( {"key": 'item1'}, "This is an {{this}}");
       compare(actual, "This is an [object Object]");
     });
+
     it('attributes for this', function(){
       var actual = st.TRANSFORM.fillout(
         {"item": "item1"},
@@ -208,6 +229,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual, "This is an item1");
     });
+
     it('when this is an array', function(){
       var actual = st.TRANSFORM.fillout(
         ['item1', 'item2', 'item3'],
@@ -216,6 +238,7 @@ describe('TRANSFORM.fillout', function() {
       compare(actual, "This is an item2");
     });
   });
+
   describe("Handling 'fillout' exceptions", function(){
     it('should handle try to wrap the expression in an immediately invoked function and try one more time', function(){
       var actual1 = st.TRANSFORM.fillout(
@@ -236,6 +259,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual3, ["1","2"]);
     });
+
     it('should handle try to wrap the expression in an immediately invoked function and try one more time, for even more complex expressions', function(){
       var actual = st.TRANSFORM.fillout(
         {created_at: 1475369605422},
@@ -243,6 +267,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual, "Sunday 0:53 am");
     });
+
     it('should return a blank space when the evaluated value is null or false', function(){
       var actual = st.TRANSFORM.fillout(
         {a: false},
@@ -256,6 +281,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual2, "This is a []");
     });
+
     it('should return blank space when an evaluatable expression is passed in and evaluates to false or null' , function(){
       var actual = st.TRANSFORM.fillout(
         ['item1', 'item2', 'item3', null, false],
@@ -269,6 +295,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual2, "This is a []");
     });
+
     it('should not fill in the template if a null or false primitive is explicitly passed in', function(){
       var actual = st.TRANSFORM.fillout(
         null,
@@ -282,6 +309,7 @@ describe('TRANSFORM.fillout', function() {
       );
       compare(actual2, "This is a {{this}}");
     });
+
     it('should return the template when an evaluatable expression is passed in but cannot be evaluated (undefined)' , function(){
       var actual = st.TRANSFORM.fillout(
         ['item1', 'item2', 'item3'],
@@ -310,6 +338,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
     var expect = "def";
     compare(actual, expect);
   });
+
   it('should handle return correctly even with $root', function(){
     var template = {
       "{{#each items}}": {
@@ -330,6 +359,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
     }];
     compare(actual, expect);
   });
+
 	describe('pass args as string', function(){
 		it("should correctly handle string only templates", function(){
 			var template = "{{$jason}}";
@@ -340,6 +370,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
 			var expect = JSON.stringify("Val");
 			compare(actual, expect);
 		});
+
 		it("should correctly handle string only templates", function(){
 			var template = "{{$jason}}";
 			var data = JSON.stringify({
@@ -356,6 +387,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
 			compare(actual, expect);
 		});
 	});
+
 	it("should correctly handle string only templates", function(){
 		var template = "{{$jason}}";
 		var data = {
@@ -365,6 +397,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
     var expect = "Val";
     compare(actual, expect);
 	});
+
 	it("should correctly handle string only templates", function(){
 		var template = "{{$jason}}";
 		var data = {
@@ -380,6 +413,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
 		};
     compare(actual, expect);
 	});
+
   describe('closure', function(){
     it('$get inside $get', function(){
       var data = {"$get": {
@@ -395,6 +429,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
       var expect = [{"text": "item"}, {"text": "item"}];
       compare(actual, expect);
     });
+
     it('should correctly handle closure', function(){
       var template = {"sections": [{
         "items": {
@@ -458,6 +493,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
       compare(actual, expect);
     });
   });
+
   describe('real world tests', function(){
     it('test1', function(){
       var template = {"result" : {
@@ -542,7 +578,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
             "header": {
               "type": "label",
               "text": "[App] Robin"
-            }, 
+            },
             "cards": [{
               "type": "vertical",
               "items": [{
@@ -560,34 +596,6 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
         }
       }};
       compare(actual, expect);
-    });
-    it('should correctly get rid of an array item if its null', function(){
-      var template = [
-        {
-          "cards": []
-        },
-        [{
-          "{{#if highlights.length>0}}": {
-              "header": {
-                "type": "label",
-                "text": "Permissions",
-                "style": {
-                  "padding": "10",
-                  "font": "HelveticaNeue-CondensedBold",
-                  "color": "#000000",
-                  "size": "11"
-                }
-              }
-          }
-        }],
-        {
-          "cards": ["a","b"]
-        }
-      ];
-
-      var data = {"highlights": []};
-      var actual = st.TRANSFORM.transform(template, data);
-      compare(actual, [ { cards: [] }, { cards: [ 'a', 'b' ] } ]);
     });
 
     it("should correctly access 'this' attribute for each item in an array", function(){
@@ -645,6 +653,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
       var actual = st.TRANSFORM.transform(template, data);
       compare(actual, {"trigger": "fetch"});
     });
+
     it('should not try to parse when theres a broken template', function(){
       var template = {
         "$frame": "NSRect: {{0, 0}, {375, 284}}",
@@ -662,6 +671,7 @@ describe('TRANSFORM.transform (JSON.transform)', function(){
       var actual = st.TRANSFORM.transform( "{{a}}", {"a": ['item1','item2']});
       compare(actual, ['item1', 'item2']);
     });
+
     it('standalone this where this is object', function(){
       var actual = st.TRANSFORM.transform( "{{a}}", {"a": {"key": 'item1'}});
       compare(actual, {"key": "item1"});

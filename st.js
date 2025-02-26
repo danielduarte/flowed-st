@@ -444,18 +444,21 @@
             // Helper.is_template(key) was false, which means the key was not a template (hardcoded string)
             if (typeof template[key] === 'string') {
               fun = TRANSFORM.tokenize(template[key]);
-              if (fun && fun.name === '#?') {
-                // If the key is a template expression but aren't either #include or #each,
-                // it needs to be parsed
+              if (fun && (fun.name === '#?' || fun.name === '#??')) {
+                // If the key is a template expression but aren't either #include or #each, it needs to be parsed
                 var filled = TRANSFORM.fillout(data, '{{' + fun.expression + '}}');
-                if (filled === '{{' + fun.expression + '}}' || !filled) {
+                var skipField = (fun.name === '#?' && !filled) || (fun.name === '#??' && typeof filled === 'undefined');
+                if (filled === '{{' + fun.expression + '}}' || skipField) {
                   // case 1.
                   // not parsed, which means the evaluation failed.
 
                   // case 2.
-                  // returns fasly value
+                  // returns fasly value and fun.name is '#?'
 
-                  // both cases mean this key should be excluded
+                  // case 3.
+                  // returns undefined value and fun.name is '#??'
+
+                  // all three cases mean this key should be excluded
                 } else {
                   // only include if the evaluation is truthy
                   result[key] = filled;

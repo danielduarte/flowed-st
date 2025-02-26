@@ -1,6 +1,6 @@
 {
   "name": "flowed-st",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "JSON Template over JSON",
   "main": "st.js",
   "directories": {
